@@ -26,6 +26,7 @@ namespace MR.CustomExtensions
 //                    GameObject Functions
 //
 /*******************************************************************/
+
 #region
         /// <summary>
         /// Removes a component from the current Gameobject.
@@ -97,7 +98,6 @@ namespace MR.CustomExtensions
         /// </example>
         public static void DestroyRemoveFromList(this GameObject obj, List<GameObject> list, float timeToDeath)
         {
-
             list.Remove(obj);
 
             //destroy the object regardless of if it was in the list
@@ -190,7 +190,7 @@ namespace MR.CustomExtensions
         /// <param name="seconds">time in secs to move to new Vector3.</param>
         /// <example>
         /// <code>
-        /// StartCoroutine(currentPosition.MoveOverSeconds(targetPosition, 10f));
+        /// StartCoroutine(currentPosition.MoveOverSeconds(targetPosition, 10f, 2f));
         /// </code>
         /// </example>
         public static IEnumerator MoveTo(this Vector3 vectorToMove, Vector3 end, float seconds, float delay)
@@ -430,6 +430,26 @@ namespace MR.CustomExtensions
 
         }
 /*******************************************************************/
+ public static IEnumerator RotateToLocal(this GameObject objectToRotate, Vector3 end, float seconds)
+        {
+            float elapsedTime = 0;
+            Quaternion startingRotation = objectToRotate.transform.localRotation;
+            Quaternion endRotation = Quaternion.Euler(end);
+
+            WaitForEndOfFrame eof = new WaitForEndOfFrame();
+            while (elapsedTime < seconds)
+            {
+                Quaternion lerper = Quaternion.Lerp(startingRotation, endRotation, (elapsedTime / seconds));
+
+                objectToRotate.transform.localRotation = lerper;
+
+                elapsedTime += Time.deltaTime;
+                yield return eof;
+            }
+
+            objectToRotate.transform.localRotation = endRotation;
+        }
+/*******************************************************************/
         /// <summary>
         /// Rotates the GameObject over seconds; start after initial delay.
         /// </summary>
@@ -480,8 +500,8 @@ namespace MR.CustomExtensions
                 elapsedTime += Time.deltaTime;
                 yield return eof;
             }
-            objectToRotate.transform.localRotation = end;
 
+            objectToRotate.transform.localRotation = end;
         }
 /*******************************************************************/
         /// <summary>
@@ -503,6 +523,7 @@ namespace MR.CustomExtensions
 
                 yield return eof;
             }
+
             objectToScale.transform.localScale = end;
         }
 /*******************************************************************/
@@ -552,8 +573,6 @@ namespace MR.CustomExtensions
                 Object.Destroy(objectToScale, 0f);
         }
 /*******************************************************************/
-
-/*******************************************************************/
         public static IEnumerator LightIntensity(this Light light, float endLight, float seconds)
         {
             float elapsedTime = 0;
@@ -564,7 +583,7 @@ namespace MR.CustomExtensions
             {
                 light.intensity = Mathf.Lerp(startingLight, endLight, (elapsedTime / seconds));
                 elapsedTime += Time.deltaTime;
-                yield return new WaitForEndOfFrame();
+                yield return eof;
             }
             light.intensity = endLight;
         }
@@ -605,6 +624,7 @@ namespace MR.CustomExtensions
                 elapsedTime += Time.deltaTime;
                 yield return new WaitForEndOfFrame();
             }
+
             light.range = endRange;
         }
 /*******************************************************************/
@@ -655,6 +675,22 @@ namespace MR.CustomExtensions
             myMat.color = startingColor;
         }
 /*******************************************************************/
+        public static IEnumerator ColorChange(this Light start, Color end, float seconds)
+        {
+            float elapsedTime = 0;
+            Color startColor = start.color;
+            WaitForEndOfFrame eof = new WaitForEndOfFrame();
+
+            while (elapsedTime < seconds)
+            {
+                start.color = Color.Lerp(startColor, end, (elapsedTime / seconds));
+                elapsedTime += Time.deltaTime;
+                yield return eof;
+            }
+
+            start.color = end;
+        }
+/*******************************************************************/
 #endregion
 /*******************************************************************/
 /*******************************************************************/
@@ -668,7 +704,6 @@ namespace MR.CustomExtensions
         /// </summary>
         /// <returns>new Vector2.</returns>
         /// <param name="v">Vector3</param>
-
         public static Vector2 xy(this Vector3 v)
         {
             return new Vector2(v.x, v.y);
@@ -695,9 +730,9 @@ namespace MR.CustomExtensions
         /// <summary>
         /// Replace x in Vector3
         /// </summary>
-        /// <returns>New Vector3.</returns>
-        /// <param name="v">Vector3.</param>
-        /// <param name="x">The x replacement.</param>
+        /// <returns>New Vector3</returns>
+        /// <param name="v">Vector3</param>
+        /// <param name="x">The x replacement</param>
         public static Vector3 WithX(this Vector3 v, float x)
         {
             return new Vector3(x, v.y, v.z);
@@ -858,17 +893,87 @@ namespace MR.CustomExtensions
             return new Vector3(v.x + v.x * 0.5f, v.y + v.y * 0.5f, v.z + v.z * 0.5f);
         }
 /*******************************************************************/
+    public static Vector3 Flattened(this Vector3 vector)
+	{
+		return new Vector3(vector.x, 0f, vector.z);
+	}
+/*******************************************************************/
+	public static float DistanceFlat(this Vector3 origin, Vector3 destination)
+	{
+		return Vector3.Distance(origin.Flattened(), destination.Flattened());
+	}
+/*******************************************************************/
+#endregion
+/*******************************************************************/
+//
+//                      List Functions
+//
+/*******************************************************************/
+#region
+        /// <summary>
+        /// Initialize a List<T> with a default value
+        /// </summary>
+        /// <param name="lst">List to fill.</param>
+        /// <param name="val">Value that will be added to list.</param>
+        /// <example>
+        /// <code>
+        /// List<int> x  = new List(10); x.Fill();
+        /// List<int> x  = new List(10); x.Fill(44);
+        /// List<float> x  = new List(10); x.Fill(74.47);
+        /// List<GameObject> x  = new List(10); x.Fill(BulletPrefab);
+        /// </code>
+        /// </example>
+        public static void Fill<T>(this List<T> lst, T val)
+        {
+            // lst = Enumerable.Repeat(val, lst.Capacity).ToList();
+            for (int i = 0; i < lst.Capacity; i++)
+            {
+                lst.Add(val);
+            }
+        }
+/*******************************************************************/
+        /// <remarks>
+        /// default(T) will return 0 for numeric types and null for reference types!
+        /// </remarks>
+        public static void Fill<T>(this List<T> lst)
+        {
+            Fill(lst, default(T));
+        }
+/*******************************************************************/
+    /// <summary>
+    /// Return a random item from the list.
+    /// Sampling with replacement.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="list"></param>
+    /// <returns></returns>
+    public static T RandomItem<T>(this IList<T> list)
+    {
+        if (list.Count == 0) throw new System.IndexOutOfRangeException("empty list");
+        return list[UnityEngine.Random.Range(0, list.Count)];
+    }
+/*******************************************************************/
 #endregion
 /*******************************************************************/
 //
 //
 //
 /*******************************************************************/
-        public static void ColourChange(this Light myLight, Color toColor)
+        public static void ColorChange(this Light myLight, Color toColor)
         {
             myLight.color = toColor;
         }
-
+/*******************************************************************/
+        /// <summary>
+        /// Change alpha of this colour
+        /// </summary>
+        /// <returns>new Color</returns>
+        /// <param name="c">Color</param>
+        /// <param name="a">The new alpha component.</param>
+        public static Color WithAlpha(this Color c, float a)
+        {
+            return new Color(c.r, c.g, c.b, a);
+        }
 /*******************************************************************/
         public static void ClearAndDestroyAllGos(this List<GameObject> gos)
         {
@@ -884,22 +989,6 @@ namespace MR.CustomExtensions
                 }
             }
             gos.Clear();
-        }
-/*******************************************************************/
-        /// <summary>
-        /// Change alpha of this colour
-        /// </summary>
-        /// <returns>new Color</returns>
-        /// <param name="c">Color</param>
-        /// <param name="a">The new alpha component.</param>
-        public static Color WithAlpha(this Color c, float a)
-        {
-            return new Color(c.r, c.g, c.b, a);
-        }
-/*******************************************************************/
-        public static Color WithGFraction(this Color c, float f)
-        {
-            return new Color(c.r, c.g * f, c.b, c.a);
         }
 /*******************************************************************/
         public static float scale(this float oldValue, float oldMin, float oldMax, float newMin, float newMax)
@@ -918,32 +1007,6 @@ namespace MR.CustomExtensions
             float newValue = (((oldValue - oldMin) * newRange) / oldRange) + newMin;
 
             return Mathf.Clamp(newValue, newMin, newMax);
-        }
-/*******************************************************************/
-         /// <summary>
-        /// Initialize a List<T> with a default value
-        /// </summary>
-        /// <param name="lst">List to fill.</param>
-        /// <param name="val">Value that will be added to list.</param>
-        /// <example>
-        /// <code>
-        /// List<int> x  = new List(10).Fill();
-        /// List<int> x  = new List(10).Fill(44);
-        /// List<float> x  = new List(10).Fill(74.47);
-        /// List<GameObject> x  = new List(10).Fill(BulletPrefab);
-        /// </code>
-        /// </example>
-        public static void Fill<T>(this List<T> lst, T val, int count)
-        {
-            lst = Enumerable.Repeat(val, count).ToList();
-        }
-
-        /// <remarks>
-        /// default(T) will return 0 for numeric types and null for reference types!
-        /// </remarks>
-        public static void Fill<T>(this List<T> lst)
-        {
-            Fill(lst, default(T), lst.Capacity);
         }
 /*******************************************************************/
         /// <summary>
