@@ -572,7 +572,7 @@ namespace MR.CustomExtensions
             myMat.color = startingColor;
         }
 /*******************************************************************/
-        public static IEnumerator ColorChange(this Light start, Color end, float seconds)
+        public static IEnumerator ColorTo(this Light start, Color end, float seconds)
         {
             float elapsedTime = 0;
             Color startColor = start.color;
@@ -588,7 +588,7 @@ namespace MR.CustomExtensions
             start.color = end;
         }
 /*******************************************************************/
-        public static IEnumerator ColorChange(this Material start, Color end, float seconds)
+        public static IEnumerator ColorTo(this Material start, Color end, float seconds)
         {
             float elapsedTime = 0;
             Color startColor = start.color;
@@ -604,7 +604,7 @@ namespace MR.CustomExtensions
             start.color = end;
         }
 /*******************************************************************/
-        public static IEnumerator ColorChange(this GameObject start, Color end, float seconds)
+        public static IEnumerator ColorTo(this GameObject start, Color end, float seconds)
         {
             float elapsedTime = 0;
             Material mat = start.GetComponent<Renderer>().material;

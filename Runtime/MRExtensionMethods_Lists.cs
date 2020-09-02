@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System;
 
 // https://docs.microsoft.com/en-us/dotnet/csharp/codedoc
 // https://www.youtube.com/watch?v=mr5xkf6zSzk
@@ -35,11 +36,11 @@ namespace MR.CustomExtensions
             {
                 if (Application.isEditor)
                 {
-                    Object.DestroyImmediate(go);
+                    UnityEngine.Object.DestroyImmediate(go);
                 }
                 else
                 {
-                    Object.Destroy(go, 0f);
+                    UnityEngine.Object.Destroy(go, 0f);
                 }
             }
             gos.Clear();
@@ -75,35 +76,85 @@ namespace MR.CustomExtensions
             Fill(lst, default(T));
         }
 /*******************************************************************/
-    /// <summary>
-    /// Return a random item from the list.
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="list"></param>
-    /// <returns></returns>
-    public static T RandomItem<T>(this IList<T> list)
-    {
-        if (list.Count == 0) throw new System.IndexOutOfRangeException("empty list");
+        /// <summary>
+        /// Return a random item from the list.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list"></param>
+        /// <returns></returns>
+        public static T RandomItem<T>(this IList<T> list)
+        {
+            if (list.Count == 0) throw new System.IndexOutOfRangeException("empty list");
 
-        return list[UnityEngine.Random.Range(0, list.Count)];
-    }
+            return list[UnityEngine.Random.Range(0, list.Count)];
+        }
 /*******************************************************************/
-    /// <summary>
-    /// Return a random item from the list and remove it.
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="list"></param>
-    /// <returns></returns>
-    public static T RandomItemRemove<T>(this IList<T> list)
-    {
-        if (list.Count == 0) throw new System.IndexOutOfRangeException("empty list");
+        /// <summary>
+        /// Return a random item from the list and remove it.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list"></param>
+        /// <returns></returns>
+        public static T RandomItemRemove<T>(this IList<T> list)
+        {
+            if (list.Count == 0) throw new System.IndexOutOfRangeException("empty list");
 
-        int rand = UnityEngine.Random.Range(0, list.Count);
-        var item = list[rand];
-        list.RemoveAt(rand);
+            int rand = UnityEngine.Random.Range(0, list.Count);
+            var item = list[rand];
+            list.RemoveAt(rand);
 
-        return item;
-    }
+            return item;
+        }
+/*******************************************************************/
+        /// <summary>
+        ///  Action for each element in IEnumerable (e.g. List, Array)
+        ///  There are "ForEach" implementations for List and Array available in Unity!
+        ///  However, they use a different syntax for the different types...
+        ///  Here, it can be unified!!
+        ///  Simply remember to ALWAYS add the type (e.g.static <GameObject>, or <float>)
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <param name="action"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <example>
+        /// <code>
+        /// customers.ForEach<Customer>(t=> t.Enabled = true);
+        /// gameObjectLists.ForEach<GameObject>(t => t.SetActive(true));
+        /// gameObjectLists.ForEach<GameObject>(t => t.transform.position = Vector3.Random());
+        ///
+        /// listOfGos.ForEach<GameObject>(t =>
+        ///     //more complex example using multiple actions simultaneously...
+        /// {
+        ///         //initial random color
+        ///         t.GetComponent<Renderer>().material.color = UnityEngine.Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
+        ///         //randomly change to this color
+        ///
+        ///         StartCoroutine(t.ColorTo(
+        ///                 Color.black,
+        ///                 UnityEngine.Random.Range(5f, 10f)
+        ///                 )
+        ///         ); //over random time))
+        ///
+        ///         StartCoroutine(t.ScaleTo(
+        ///                 Vector3.zero.Random(Vector3.one * 2f, Vector3.one * 3f),  //to random size
+        ///                 UnityEngine.Random.Range(5f, 10f)//over random time
+        ///                 )
+        ///         );
+        ///     }
+        /// );
+        ///
+        /// </code>
+        /// </example>
+        /// <returns></returns>
+        public static void ForEach<T>(this IEnumerable<T> collection, Action<T> action)
+        {
+            foreach (T item in collection)
+            {
+                action(item);
+            }
+
+          //  return collection;
+        }
 /*******************************************************************/
 #endregion
     }
