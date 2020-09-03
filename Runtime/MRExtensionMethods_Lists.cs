@@ -32,20 +32,24 @@ namespace MR.CustomExtensions
 #region
         public static void ClearAndDestroyAllGos(this List<GameObject> gos)
         {
-            foreach (GameObject go in gos)
-            {
+            // foreach (GameObject go in gos)
+            // {
                 if (Application.isEditor)
                 {
-                    UnityEngine.Object.DestroyImmediate(go);
+                    // UnityEngine.Object.DestroyImmediate(go);
+                    gos.ForEach<GameObject>(g => UnityEngine.Object.DestroyImmediate(g));
                 }
                 else
                 {
-                    UnityEngine.Object.Destroy(go, 0f);
+                    // UnityEngine.Object.Destroy(go, 0f);
+                    gos.ForEach<GameObject>(g => UnityEngine.Object.Destroy(g, 0f));
                 }
-            }
+            // }
+
+
             gos.Clear();
         }
-/*******************************************************************/
+/*******************************************************************
         /// <summary>
         /// Initialize a List<T> with a default value
         /// </summary>
@@ -67,7 +71,7 @@ namespace MR.CustomExtensions
                 lst.Add(val);
             }
         }
-/*******************************************************************/
+/*******************************************************************
         /// <remarks>
         /// default(T) will return 0 for numeric types and null for reference types!
         /// </remarks>
@@ -107,10 +111,10 @@ namespace MR.CustomExtensions
         }
 /*******************************************************************/
         /// <summary>
-        ///  Action for each element in IEnumerable (e.g. List, Array)
+        ///  Action for each element in IEnumerable (e.g. List, Array, collection, etc.)
         ///  There are "ForEach" implementations for List and Array available in Unity!
         ///  However, they use a different syntax for the different types...
-        ///  Here, it can be unified!!
+        ///  Here, it is unified!!
         ///  Simply remember to ALWAYS add the type (e.g.static <GameObject>, or <float>)
         /// </summary>
         /// <param name="collection"></param>

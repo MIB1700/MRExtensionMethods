@@ -28,7 +28,7 @@ namespace MR.CustomExtensions
 //      Miscs.
 //
 /*******************************************************************/
-        public static void ColorChange(this Light myLight, Color toColor)
+        public static void ColorTo(this Light myLight, Color toColor)
         {
             myLight.color = toColor;
         }
@@ -53,7 +53,7 @@ namespace MR.CustomExtensions
     /// <param name="newMin"></param>
     /// <param name="newMax"></param>
     /// <returns></returns>
-        public static float scale(this float oldValue, float oldMin, float oldMax, float newMin, float newMax)
+        public static float Scale(this float oldValue, float oldMin, float oldMax, float newMin, float newMax)
         {
             float oldRange = oldMax - oldMin;
             float newRange = newMax - newMin;
@@ -62,7 +62,7 @@ namespace MR.CustomExtensions
             return newValue;
         }
 /*******************************************************************/
-        public static float scaleClamp(this float oldValue, float oldMin, float oldMax, float newMin, float newMax)
+        public static float ScaleClamp(this float oldValue, float oldMin, float oldMax, float newMin, float newMax)
         {
             float oldRange = oldMax - oldMin;
             float newRange = newMax - newMin;
@@ -75,7 +75,7 @@ namespace MR.CustomExtensions
         /// Looks at a given target.
         /// </summary>
         /// <param name="self">Transform from which to look.</param>
-        /// <param name="target">Target to look at.</param>
+        /// <param name="target">Target GameObject to look at.</param>
         public static void LookAt(this Transform self, GameObject target)
         {
             self.LookAt(target.transform);
@@ -85,7 +85,7 @@ namespace MR.CustomExtensions
         /// Looks at a given target.
         /// </summary>
         /// <param name="self">Transform from which to look.</param>
-        /// <param name="target">Target to look at.</param>
+        /// <param name="target">Target transform to look at.</param>
         public static void LookAt(this Transform self, Transform target)
         {
             self.LookAt(target);
@@ -94,8 +94,8 @@ namespace MR.CustomExtensions
         /// <summary>
         /// Looks at a given target.
         /// </summary>
-        /// <param name="self">Transform from which to look.</param>
-        /// <param name="target">Target to look at.</param>
+        /// <param name="self">GameObject from which to look.</param>
+        /// <param name="target">Target GameObject to look at.</param>
         public static void LookAt(this GameObject self, GameObject target)
         {
             self.transform.LookAt(target);
@@ -121,6 +121,17 @@ namespace MR.CustomExtensions
         public static Quaternion GetLookAtRotation(this Transform self, Transform target)
         {
             return GetLookAtRotation(self, target.position);
+        }
+/*******************************************************************/
+         /// <summary>
+        /// Rotation of this object to target
+        /// </summary>
+        /// <returns>Quaternion needed to look at target.</returns>
+        /// <param name="self">Starting Transform.</param>
+        /// <param name="target">Target Position (Transform).</param>
+        public static Quaternion GetLookAtRotation(this GameObject self, GameObject target)
+        {
+            return GetLookAtRotation(self.transform, target.transform.position);
         }
 /*******************************************************************/
     }
