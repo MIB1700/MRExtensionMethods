@@ -127,6 +127,17 @@ namespace MR.CustomExtensions
             }
         }
 /*******************************************************************/
+        public static void ColorTo(this GameObject go, Color toColor)
+        {
+            go.GetComponent<Renderer>().material.color = toColor;
+        }
+/*******************************************************************/
+        public static void ColorTo(this Material mat, Color toColor)
+        {
+            mat.color = toColor;
+        }
+/*******************************************************************/
+
 #endregion
     }
 }
