@@ -38,10 +38,23 @@ namespace MR.CustomExtensions
         /// <typeparam name="Component">The Component to be removed.</typeparam>
         public static void RemoveComponent<Component>(this GameObject obj, bool immediate = false)
         {
-            Component component = obj.GetComponent<Component>();
+            // Component component = obj.GetComponent<Component>();
 
-            if (component != null)
-            {
+            // if (component != null)
+            // {
+            //     if (immediate)
+            //     {
+            //         Object.DestroyImmediate(component as Object, true);
+            //     }
+            //     else
+            //     {
+            //         Object.Destroy(component as Object);
+            //     }
+            // }
+
+            //TryGetComponent returns true if found and assigns Component to the "out" variable
+            if (obj.TryGetComponent(out Component component)){
+
                 if (immediate)
                 {
                     Object.DestroyImmediate(component as Object, true);
@@ -127,6 +140,17 @@ namespace MR.CustomExtensions
             }
         }
 /*******************************************************************/
+        public static void ColorTo(this GameObject go, Color toColor)
+        {
+            go.GetComponent<Renderer>().material.color = toColor;
+        }
+/*******************************************************************/
+        public static void ColorTo(this Material mat, Color toColor)
+        {
+            mat.color = toColor;
+        }
+/*******************************************************************/
+
 #endregion
     }
 }
