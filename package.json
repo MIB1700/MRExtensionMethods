@@ -1,8 +1,8 @@
 {
   "name": "com.mr.extensionmethods",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "displayName": "MR Custom Extensions",
-  "unity": "2019.1",
+  "unity": "2019.2",
   "keywords": [
     "vector",
     "extension",
