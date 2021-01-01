@@ -44,15 +44,25 @@ namespace MR.CustomExtensions
             return new Color(c.r, c.g, c.b, a);
         }
 /*******************************************************************/
-    /// <summary>
-    ///
-    /// </summary>
-    /// <param name="oldValue"></param>
-    /// <param name="oldMin"></param>
-    /// <param name="oldMax"></param>
-    /// <param name="newMin"></param>
-    /// <param name="newMax"></param>
-    /// <returns></returns>
+        public static Color Random()
+        {
+            return new Color(UnityEngine.Random.Range(0f, 1f), UnityEngine.Random.Range(0f, 1f), UnityEngine.Random.Range(0f, 1f));
+        }
+/*******************************************************************/
+        public static Color RandomWithAlpha()
+        {
+            return new Color(UnityEngine.Random.Range(0f, 1f), UnityEngine.Random.Range(0f, 1f), UnityEngine.Random.Range(0f, 1f));
+        }
+/*******************************************************************/
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="oldValue"></param>
+        /// <param name="oldMin"></param>
+        /// <param name="oldMax"></param>
+        /// <param name="newMin"></param>
+        /// <param name="newMax"></param>
+        /// <returns></returns>
         public static float Scale(this float oldValue, float oldMin, float oldMax, float newMin, float newMax)
         {
             float oldRange = oldMax - oldMin;
