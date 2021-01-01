@@ -44,14 +44,23 @@ namespace MR.CustomExtensions
             return new Color(c.r, c.g, c.b, a);
         }
 /*******************************************************************/
-        public static Color Random()
+        public static Color Randomize(this Color c)
         {
-            return new Color(UnityEngine.Random.Range(0f, 1f), UnityEngine.Random.Range(0f, 1f), UnityEngine.Random.Range(0f, 1f));
+            c.r = UnityEngine.Random.Range(0f, 1f);
+            c.g = UnityEngine.Random.Range(0f, 1f);
+            c.b = UnityEngine.Random.Range(0f, 1f);
+
+            return c;
         }
 /*******************************************************************/
-        public static Color RandomWithAlpha()
+        public static Color RandomizeWithAlpha(this Color c)
         {
-            return new Color(UnityEngine.Random.Range(0f, 1f), UnityEngine.Random.Range(0f, 1f), UnityEngine.Random.Range(0f, 1f));
+            c.r = UnityEngine.Random.Range(0f, 1f);
+            c.g = UnityEngine.Random.Range(0f, 1f);
+            c.b = UnityEngine.Random.Range(0f, 1f);
+            c.a = UnityEngine.Random.Range(0f, 1f);
+
+            return c;
         }
 /*******************************************************************/
         /// <summary>
