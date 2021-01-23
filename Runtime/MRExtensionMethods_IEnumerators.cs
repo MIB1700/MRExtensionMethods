@@ -698,6 +698,58 @@ namespace MR.CustomExtensions
 
             callback?.Invoke();
         }
+        /*******************************************************************/
+        /// <summary>
+        /// Starts a delay for duration and then calls the callback delegate.
+        /// Same as public static IEnumerator Timer(...), just a different name!
+        /// </summary>
+        /// <param name="duration">duration of timer.</param>
+        /// <param name="callback">Action callback method to call after timer completion.</param>
+        public static IEnumerator Delay(this Action callback, float duration)
+        {
+            yield return new WaitForSeconds(duration);
+
+            callback?.Invoke();
+        }
+        /*******************************************************************/
+        /// <summary>
+        /// Starts a delay for duration and then calls the callback delegate.
+        /// Same as public static IEnumerator Timer(...), just a different name!
+        /// </summary>
+        /// <param name="duration">duration of timer.</param>
+        /// <param name="callback">Action callback method to call after timer completion.</param>
+        public static IEnumerator Timer(this Action callback, float duration)
+        {
+            yield return new WaitForSeconds(duration);
+
+            callback?.Invoke();
+        }
+        /*******************************************************************/
+        /// <summary>
+        /// Starts a delay for duration and then calls the callback delegate.
+        /// Same as public static IEnumerator Timer(...), just a different name!
+        /// </summary>
+        /// <param name="duration">duration of timer.</param>
+        /// <param name="callback">Action callback method to call after timer completion.</param>
+        public static IEnumerator DelayToEndOfFrame(this Action callback)
+        {
+            yield return new WaitForEndOfFrame();
+
+            callback?.Invoke();
+        }
+        /*******************************************************************/
+        /// <summary>
+        /// Starts a delay for duration and then calls the callback delegate.
+        /// Same as public static IEnumerator Timer(...), just a different name!
+        /// </summary>
+        /// <param name="duration">duration of timer.</param>
+        /// <param name="callback">Action callback method to call after timer completion.</param>
+        public static IEnumerator DelayToEndOfFixedFrame(this Action callback)
+        {
+            yield return new WaitForFixedUpdate();
+
+            callback?.Invoke();
+        }
         #endregion
         /*******************************************************************/
     }
