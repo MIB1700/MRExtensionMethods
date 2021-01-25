@@ -153,5 +153,14 @@ namespace MR.CustomExtensions
             return GetLookAtRotation(self.transform, target.transform.position);
         }
 /*******************************************************************/
+        public static bool IsEven(this int integer)
+        {
+            return integer % 2 == 0;
+        }
+/*******************************************************************/
+        public static bool IsOdd(this int integer)
+        {
+            return integer % 2 != 0;
+        }
     }
 }
