@@ -2,7 +2,7 @@
   "name": "com.mr.extensionmethods",
   "version": "1.0.6",
   "displayName": "MR Extensions",
-  "unity": "2019.2",
+  "unity": "2019.4",
   "keywords": [
     "vector",
     "extension",
@@ -13,5 +13,6 @@
     "email": "services@martin-ritter.com",
     "url": "https://www.martin-ritter.com"
   },
-  "description": "Basic custom C# extension methods."
+  "description": "Basic custom C# extension methods.",
+  "hideInEditor": false
 }
