@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using MR.CustomExtensions;
- 
+
  /*
   *    ADD THIS SCRIPT TO A CUBE IN THE SCENE TO TEST
   */
@@ -25,11 +25,11 @@ public class testScript : MonoBehaviour
 
     //private float speed = 1f;
 
-    //All Coroutines now come with optional Callback function!! 
+    //All Coroutines now come with optional Callback function!!
 
     void Start()
     {
-       
+
 
         StartCoroutine(5f.Timer(
             ()=>
@@ -100,7 +100,7 @@ public class testScript : MonoBehaviour
                     curRend.material.color = curRend.material.color.Randomize();
                  }
 
-                 
+
 
                 StartCoroutine(t.ColorTo(
                         Color.black,

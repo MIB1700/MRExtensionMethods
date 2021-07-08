@@ -1,6 +1,9 @@
 {
     "name": "com.mr.basicExtensions",
-    "references": [],
+    "rootNamespace": "",
+    "references": [
+        "com.mr.basicExtensionsRoot"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

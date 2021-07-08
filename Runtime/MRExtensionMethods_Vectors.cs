@@ -53,7 +53,10 @@ namespace MR.CustomExtensions
         /// <param name="max">max random value</param>
         public static Vector3 Random(this Vector3 v, Vector3 min, Vector3 max)
         {
-            v = new Vector3(UnityEngine.Random.Range(min.x, max.x), UnityEngine.Random.Range(min.y, max.y), UnityEngine.Random.Range(min.z, max.z));
+            v = new Vector3(UnityEngine.Random.Range(min.x, max.x),
+                            UnityEngine.Random.Range(min.y, max.y),
+                            UnityEngine.Random.Range(min.z, max.z)
+                            );
             return v;
         }
 /*******************************************************************/
@@ -220,7 +223,7 @@ namespace MR.CustomExtensions
         /// <param name="v">Vector3</param>
         public static Vector3 Center(this Vector3 v)
         {
-            return new Vector3(v.x + v.x * 0.5f, v.y + v.y * 0.5f, v.z + v.z * 0.5f);
+            return new Vector3(v.x + (v.x * 0.5f), v.y + (v.y * 0.5f), v.z + (v.z * 0.5f));
         }
 /*******************************************************************/
     public static Vector3 Flattened(this Vector3 vector)
