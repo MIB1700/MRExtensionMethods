@@ -1,8 +1,6 @@
 using System.Diagnostics;
 using UnityEngine;
 using UnityEditor;
-using System.Reflection;
-using System.Collections;
 using System;
 // using UnityEditorInternal;
 using System.IO;
@@ -111,23 +109,23 @@ namespace MR.CustomExtensions
                 if (finalTextName != null)
                 {
                     EditorGUI.LabelField(selectionRect, name, new GUIStyle()
-                    {
-                        normal = new GUIStyleState() { textColor = textColour },
-                        fontStyle = FontStyle.BoldAndItalic,
-                        wordWrap = true,
-                        alignment = TextAnchor.MiddleCenter
-                    }
+                        {
+                            normal = new GUIStyleState() { textColor = textColour },
+                            fontStyle = FontStyle.BoldAndItalic,
+                            wordWrap = true,
+                            alignment = TextAnchor.MiddleCenter
+                        }
                     );
                 }
                 else
                 {
                     EditorGUI.LabelField(selectionRect, name, new GUIStyle()
-                    {
-                        normal = new GUIStyleState() { textColor = textC },
-                        fontStyle = FontStyle.BoldAndItalic,
-                        wordWrap = true,
-                        alignment = TextAnchor.MiddleCenter
-                    }
+                        {
+                            normal = new GUIStyleState() { textColor = textC },
+                            fontStyle = FontStyle.BoldAndItalic,
+                            wordWrap = true,
+                            alignment = TextAnchor.MiddleCenter
+                        }
                     );
                 }
             }
@@ -184,21 +182,21 @@ namespace MR.CustomExtensions
             finalName = nameCheck.Replace("/", "");
 
             //split string into words, delimited by spaces
-            var cols = finalName.ToLower().Split(' ');
+            var cols = finalName.Split(' ');
 
             //loop through words, checking for the "type" to create the final colour
             foreach (var col in cols)
             {
-                if (col.ToLower().Contains(type))
+                if (col.Contains(type))
                 {
                     //remove any of the filler characters
                     newCol = col.Replace("_", "").Replace("-", "").Replace(type, "");
 
                     //either a colour name is left or nothing (i.e. something went wrong)
-                    if (!String.IsNullOrEmpty(newCol)) {
+                    // if (!String.IsNullOrEmpty(newCol)) {
                         //this is the display name of the GO
                         finalName = finalName.Replace(newCol, "").Replace(type, "");
-                    }
+                    // }
 
                     // if (newCol.Equals("rand", System.StringComparison.OrdinalIgnoreCase)) {
 
@@ -213,16 +211,16 @@ namespace MR.CustomExtensions
                     }
                     else {
                         //if unity can't convert the string then let C# try...
-                        // UnityEngine.Debug.Log($"{newCol} is not a UNITY COLOR, try C#...");
+
+                        UnityEngine.Debug.Log($"{newCol} is not a UNITY COLOR, try C#...");
                         var fColor = System.Drawing.Color.FromName(newCol);
-                        finalColor = ConvertSystemToUnityColor(fColor);
 
-                        //.FromName() returns a color or ARGB==0000 if the string can't be converted
-                        if (finalColor.a == 0 && finalColor.r == 0 &&
-                            finalColor.g == 0 && finalColor.b == 0) {
+                        if (type.Equals("bg:")) {
 
-                            finalColor = UnityEngine.Color.white;
+                            UnityEngine.Debug.Log($"C# BG: {newCol}: {fColor.A} {fColor.R} {fColor.G} {fColor.B}");
                         }
+
+                        finalColor = ConvertSystemToUnityColor(fColor);
 
                         //default to white if the color string isn't known
                          return (finalColor, finalName);
@@ -242,6 +240,13 @@ namespace MR.CustomExtensions
             unityColor.r = color.R;
             unityColor.g = color.G;
             unityColor.b = color.B;
+
+             //.FromName() returns a color or ARGB==0000 if the string can't be converted
+            if (unityColor.a == 0 && unityColor.r == 0 &&
+                unityColor.g == 0 && unityColor.b == 0) {
+
+                unityColor = UnityEngine.Color.white;
+            }
 
             return unityColor;
         }
