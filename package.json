@@ -1,6 +1,6 @@
 {
   "name": "com.mr.extensionmethods",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "displayName": "MR Extensions",
   "unity": "2019.4",
   "keywords": [
@@ -14,17 +14,5 @@
     "url": "https://www.martin-ritter.com"
   },
   "description": "Basic custom C# extension methods.",
-  "hideInEditor": false,
-
-  "samples": [
-    {
-
-      "displayName": "Example Scene",
-
-      "description": "Sample scene to demonstrate some of the extensions",
-
-      "path": "Samples~/ExampleScene"
-
-    }
-  ]
+  "hideInEditor": false
 }
