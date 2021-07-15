@@ -67,26 +67,31 @@ namespace MR.CustomExtensions
                 selectionRect.xMax += 10;
 
                 var offset = selectionRect;
-                offset.xMin += 2;
-                offset.yMin += 2;
-                offset.width -= 2;
-                offset.height -= 2;
 
                 gameObject.SetActive(false);
                 // EditorGUI.DrawRect(selectionRect, borderC);
 
                 var name = gameObject.name;
 
-                (UnityEngine.Color backGroundColour, string finalName) = GetColorFromString(name, "bg:");
+                (UnityEngine.Color backGroundColour, string finalName)   = GetColorFromString(name, "bg:");
 
                 name = finalName ?? name;
-                (UnityEngine.Color textColour, string finalTextName) = GetColorFromString(name, "t:");
+                (UnityEngine.Color textColour, string finalTextName)     = GetColorFromString(name, "t:");
 
                 name = finalTextName ?? name;
                 (UnityEngine.Color borderColour, string finalBorderName) = GetColorFromString(name, "b:");
 
                 name = finalBorderName ?? name;
+                (float bOffset, string offsetName) = GetOffsetFromString(name, "bs:");
+
+                name = offsetName ?? name;
                 name = name.Replace("/", "");
+
+                offset.xMin     += bOffset;
+                offset.yMin     += bOffset;
+                offset.width    -= bOffset;
+                offset.height   -= bOffset;
+
 
                 if (finalBorderName != null)
                 {
@@ -147,12 +152,95 @@ namespace MR.CustomExtensions
         {
             UnityEngine.Color finalColor = UnityEngine.Color.white;
             string newCol = "";
+            string finalName = CheckForWhiteSpaceAfterType(cString, type);
+
+            //remove the "//" since we done't want to see this on the GO in the hierarchy
+            finalName = finalName.Replace("/", "");
+
+            //split string into words, delimited by spaces
+            var cols = finalName.Split(' ');
+
+            //loop through words, checking for the "type" to create the final colour
+            foreach (var col in cols)
+            {
+                if (col.Contains(type))
+                {
+                    //remove any of the filler characters
+                    newCol = col.Replace("_", "").Replace("-", "").Replace(type, "").Replace(" ", "");
+
+                    // if (newCol.Equals("b:")) {
+
+                    //     UnityEngine.Debug.Log($"newCol: {newCol} for type: {type}");
+                    // }
+
+                    finalName = finalName.Replace(col, "");
+
+                    // // if (newCol.Equals("rand", System.StringComparison.OrdinalIgnoreCase)) {
+
+                    // //     newCol = allColors[UnityEngine.Random.Range(0, allColors.Length)];
+                    // //     UnityEngine.Debug.Log($"randCol: {newCol}");
+                    // // }
+
+                    // //convert string colour name to actual Unity Color...
+                    if (ColorUtility.TryParseHtmlString(newCol, out finalColor))
+                    {
+                        //  UnityEngine.Debug.Log($"type: {type} col: {newCol}");
+                        return (finalColor, finalName);
+                    }
+                    else
+                    {
+                        return (UnityEngine.Color.white, finalName);
+                    }
+                }
+            }
+
+            return (finalColor, null); //Color cannot be null => return null for the string so we can test if
+                                       //function was succesful or not
+        }
+
+        private static (float borderSize, string finalName) GetOffsetFromString(string cString, string type)
+        {
+            float offset = 2;
+            string newCol = "";
             string finalName = "";
-            string nameCheck = cString;
+            string nameCheck = CheckForWhiteSpaceAfterType(cString, type);
 
-            var typeExists = nameCheck.IndexOf(type, System.StringComparison.Ordinal);
+            //remove the "//" since we done't want to see this on the GO in the hierarchy
+            finalName = nameCheck.Replace("/", "");
 
-            if (typeExists >= 0) {
+            //split string into words, delimited by spaces
+            var cols = finalName.Split(' ');
+
+            //loop through words, checking for the "type" to create the final colour
+            foreach (var col in cols)
+            {
+                if (col.Contains(type))
+                {
+                    //remove any of the filler characters
+                    newCol = col.Replace("_", "").Replace("-", "").Replace(type, "");
+
+                    finalName = finalName.Replace(newCol, "").Replace(type, "");
+
+                    // if (newCol.Equals("rand", System.StringComparison.OrdinalIgnoreCase)) {
+
+                    //     newCol = allColors[UnityEngine.Random.Range(0, allColors.Length)];
+                    //     UnityEngine.Debug.Log($"randCol: {newCol}");
+                    // }
+
+                    if (Single.TryParse(newCol, out offset))
+                    {
+                        return(offset, finalName);
+                    }
+
+                    return(2, finalName);
+                }
+            }
+            return (offset, null); //Color cannot be null => return null for the string so we can test if
+                                       //function was succesful or not
+        }
+
+/*
+ if (typeExists >= 0) {
 
                 var typeLength = type.Length;
                 var spaceLocation = (typeExists + typeLength);
@@ -177,43 +265,39 @@ namespace MR.CustomExtensions
                     }
                 }
             }
+*/
+        private static string CheckForWhiteSpaceAfterType(string cString, string type)
+        {
+            var typeExists = cString.IndexOf(type, System.StringComparison.Ordinal);
+            var nameCheck = cString;
 
-            //remove the "//" since we done't want to see this on the GO in the hierarchy
-            finalName = nameCheck.Replace("/", "");
-
-            //split string into words, delimited by spaces
-            var cols = finalName.Split(' ');
-
-            //loop through words, checking for the "type" to create the final colour
-            foreach (var col in cols)
+            if (typeExists >= 0)
             {
-                if (col.Contains(type))
+                var typeLength = type.Length;
+                var spaceLocation = (typeExists + typeLength);
+                var stillSpace = true;
+
+                //remove any whitespace after a "type"; e.g.: bg:  red needs to be bg:red
+                //otherwise the split won't work below
+                while (stillSpace)
                 {
-                    //remove any of the filler characters
-                    newCol = col.Replace("_", "").Replace("-", "").Replace(type, "");
+                    // UnityEngine.Debug.Log($"type: {type} exists at: {cString[spaceLocation]}");
 
-                    finalName = finalName.Replace(newCol, "").Replace(type, "");
+                    if (Char.IsWhiteSpace(nameCheck, spaceLocation)) {
 
-                    // if (newCol.Equals("rand", System.StringComparison.OrdinalIgnoreCase)) {
+                        // UnityEngine.Debug.Log($"space: {typeExists + typeLength}");
+                        nameCheck = nameCheck.Remove(spaceLocation, 1);
 
-                    //     newCol = allColors[UnityEngine.Random.Range(0, allColors.Length)];
-                    //     UnityEngine.Debug.Log($"randCol: {newCol}");
-                    // }
-
-                    //convert string colour name to actual Unity Color...
-                    if (ColorUtility.TryParseHtmlString(newCol, out finalColor))
-                    {
-                        return (finalColor, finalName);
+                        // UnityEngine.Debug.Log($"space: {cString}");
                     }
                     else {
-
-                         return (UnityEngine.Color.white, finalName);
+                        // UnityEngine.Debug.Log($"cString[{checkForSpace}]: {cString[typeExists + typeLength]}");
+                        stillSpace = false;
                     }
                 }
             }
 
-            return (finalColor, null); //Color cannot be null => return null for the string so we can test if
-                                       //function was succesful or not
+            return nameCheck;
         }
     }
 }
