@@ -63,10 +63,17 @@ namespace MR.CustomExtensions
             //if the name of the GO starts with a double "//" i.e. like a comment...
             if (gameObject.name.StartsWith("//", System.StringComparison.Ordinal))
             {
-                selectionRect.xMin -= 20;
-                selectionRect.xMax += 10;
+                float xPos = selectionRect.position.x + 60f - 28f - selectionRect.xMin;
+                float yPos = selectionRect.position.y;
+                float xSize = selectionRect.size.x + selectionRect.xMin + 28f - 60 + 16f;
+                float ySize = selectionRect.size.y;
 
-                var offset = selectionRect;
+                Rect BackgroundRect = new Rect(xPos, yPos, xSize, ySize);
+
+                // selectionRect.xMin -= 26;
+                // selectionRect.xMax += 16;
+
+                var offset = BackgroundRect;
 
                 gameObject.SetActive(false);
                 // EditorGUI.DrawRect(selectionRect, borderC);
@@ -82,9 +89,12 @@ namespace MR.CustomExtensions
                 (UnityEngine.Color borderColour, string finalBorderName) = GetColorFromString(name, "b:");
 
                 name = finalBorderName ?? name;
-                (float bOffset, string offsetName) = GetOffsetFromString(name, "bs:");
+                (float bOffset, string offsetName) = GetNumberFromString(name, "bs:", 2);
 
                 name = offsetName ?? name;
+                (float textSize, string textSizeName) = GetNumberFromString(name, "ts:", 12);
+
+                name = textSizeName ?? name;
                 name = name.Replace("/", "");
 
                 offset.xMin     += bOffset;
@@ -95,11 +105,11 @@ namespace MR.CustomExtensions
 
                 if (finalBorderName != null)
                 {
-                    EditorGUI.DrawRect(selectionRect, borderColour);
+                    EditorGUI.DrawRect(BackgroundRect, borderColour);
                 }
                 else
                 {
-                    EditorGUI.DrawRect(selectionRect, borderC);
+                    EditorGUI.DrawRect(BackgroundRect, borderC);
                 }
 
                 if (finalName != null)
@@ -113,10 +123,11 @@ namespace MR.CustomExtensions
 
                 if (finalTextName != null)
                 {
-                    EditorGUI.LabelField(selectionRect, name, new GUIStyle()
+                    EditorGUI.LabelField(BackgroundRect, name, new GUIStyle()
                         {
                             normal = new GUIStyleState() { textColor = textColour },
                             fontStyle = FontStyle.BoldAndItalic,
+                            fontSize = (int)textSize,
                             wordWrap = true,
                             alignment = TextAnchor.MiddleCenter
                         }
@@ -124,10 +135,11 @@ namespace MR.CustomExtensions
                 }
                 else
                 {
-                    EditorGUI.LabelField(selectionRect, name, new GUIStyle()
+                    EditorGUI.LabelField(BackgroundRect, name, new GUIStyle()
                         {
                             normal = new GUIStyleState() { textColor = textC },
                             fontStyle = FontStyle.BoldAndItalic,
+                            fontSize = (int)textSize,
                             wordWrap = true,
                             alignment = TextAnchor.MiddleCenter
                         }
@@ -184,6 +196,7 @@ namespace MR.CustomExtensions
                     }
                     else
                     {
+                        UnityEngine.Debug.LogError($"Color: {newCol} for Type: {type} could not be converted...");
                         return (UnityEngine.Color.white, finalName);
                     }
                 }
@@ -193,9 +206,9 @@ namespace MR.CustomExtensions
                                        //function was succesful or not
         }
 
-        private static (float borderSize, string finalName) GetOffsetFromString(string cString, string type)
+        private static (float borderSize, string finalName) GetNumberFromString(string cString, string type, float def)
         {
-            float offset = 2;
+            float offset = def;
             string newCol = "";
             string finalName = "";
             string nameCheck = CheckForWhiteSpaceAfterType(cString, type);
@@ -227,11 +240,10 @@ namespace MR.CustomExtensions
                         return(offset, finalName);
                     }
 
-                    return(2, finalName);
+                    return(def, finalName);
                 }
             }
-            return (offset, null); //Color cannot be null => return null for the string so we can test if
-                                       //function was succesful or not
+            return (def, null);
         }
 
         private static string CheckForWhiteSpaceAfterType(string cString, string type)
