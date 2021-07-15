@@ -22,7 +22,16 @@
 
       "description": "Description for sample 1",
 
-      "path": "Samples~/Assets"
+      "path": "Samples~/Scenes"
+
+    },
+    {
+
+      "displayName": "Sample Script",
+
+      "description": "Description for sample 1",
+
+      "path": "Samples~/Scripts"
 
     }
   ]
