@@ -14,5 +14,16 @@
     "url": "https://www.martin-ritter.com"
   },
   "description": "Basic custom C# extension methods.",
-  "hideInEditor": false
+  "hideInEditor": false,
+  "samples": [
+    {
+
+      "displayName": "Sample Scene",
+
+      "description": "Description for sample 1",
+
+      "path": "Samples~/Scenes"
+
+    }
+  ]
 }
