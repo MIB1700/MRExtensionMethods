@@ -63,38 +63,53 @@ namespace MR.CustomExtensions
             //if the name of the GO starts with a double "//" i.e. like a comment...
             if (gameObject.name.StartsWith("//", System.StringComparison.Ordinal))
             {
-                selectionRect.xMin -= 20;
-                selectionRect.xMax += 10;
+                float xPos = selectionRect.position.x + 60f - 28f - selectionRect.xMin;
+                float yPos = selectionRect.position.y;
+                float xSize = selectionRect.size.x + selectionRect.xMin + 28f - 60 + 16f;
+                float ySize = selectionRect.size.y;
 
-                var offset = selectionRect;
-                offset.xMin += 2;
-                offset.yMin += 2;
-                offset.width -= 2;
-                offset.height -= 2;
+                Rect BackgroundRect = new Rect(xPos, yPos, xSize, ySize);
+
+                // selectionRect.xMin -= 26;
+                // selectionRect.xMax += 16;
+
+                var offset = BackgroundRect;
 
                 gameObject.SetActive(false);
                 // EditorGUI.DrawRect(selectionRect, borderC);
 
                 var name = gameObject.name;
 
-                (UnityEngine.Color backGroundColour, string finalName) = GetColorFromString(name, "bg:");
+                (UnityEngine.Color backGroundColour, string finalName)   = GetColorFromString(name, "bg:");
 
                 name = finalName ?? name;
-                (UnityEngine.Color textColour, string finalTextName) = GetColorFromString(name, "t:");
+                (UnityEngine.Color textColour, string finalTextName)     = GetColorFromString(name, "t:");
 
                 name = finalTextName ?? name;
                 (UnityEngine.Color borderColour, string finalBorderName) = GetColorFromString(name, "b:");
 
                 name = finalBorderName ?? name;
+                (float bOffset, string offsetName) = GetNumberFromString(name, "bs:", 2);
+
+                name = offsetName ?? name;
+                (float textSize, string textSizeName) = GetNumberFromString(name, "ts:", 12);
+
+                name = textSizeName ?? name;
                 name = name.Replace("/", "");
+
+                offset.xMin     += bOffset;
+                offset.yMin     += bOffset;
+                offset.width    -= bOffset;
+                offset.height   -= bOffset;
+
 
                 if (finalBorderName != null)
                 {
-                    EditorGUI.DrawRect(selectionRect, borderColour);
+                    EditorGUI.DrawRect(BackgroundRect, borderColour);
                 }
                 else
                 {
-                    EditorGUI.DrawRect(selectionRect, borderC);
+                    EditorGUI.DrawRect(BackgroundRect, borderC);
                 }
 
                 if (finalName != null)
@@ -108,10 +123,11 @@ namespace MR.CustomExtensions
 
                 if (finalTextName != null)
                 {
-                    EditorGUI.LabelField(selectionRect, name, new GUIStyle()
+                    EditorGUI.LabelField(BackgroundRect, name, new GUIStyle()
                         {
                             normal = new GUIStyleState() { textColor = textColour },
                             fontStyle = FontStyle.BoldAndItalic,
+                            fontSize = (int)textSize,
                             wordWrap = true,
                             alignment = TextAnchor.MiddleCenter
                         }
@@ -119,10 +135,11 @@ namespace MR.CustomExtensions
                 }
                 else
                 {
-                    EditorGUI.LabelField(selectionRect, name, new GUIStyle()
+                    EditorGUI.LabelField(BackgroundRect, name, new GUIStyle()
                         {
                             normal = new GUIStyleState() { textColor = textC },
                             fontStyle = FontStyle.BoldAndItalic,
+                            fontSize = (int)textSize,
                             wordWrap = true,
                             alignment = TextAnchor.MiddleCenter
                         }
@@ -147,36 +164,54 @@ namespace MR.CustomExtensions
         {
             UnityEngine.Color finalColor = UnityEngine.Color.white;
             string newCol = "";
-            string finalName = "";
-            string nameCheck = cString;
+            string finalName = CheckForWhiteSpaceAfterType(cString, type);
 
-            var typeExists = nameCheck.IndexOf(type, System.StringComparison.Ordinal);
+            //remove the "//" since we done't want to see this on the GO in the hierarchy
+            finalName = finalName.Replace("/", "");
 
-            if (typeExists >= 0) {
+            //split string into words, delimited by spaces
+            var cols = finalName.Split(' ');
 
-                var typeLength = type.Length;
-                var spaceLocation = (typeExists + typeLength);
-                var stillSpace = true;
+            //loop through words, checking for the "type" to create the final colour
+            foreach (var col in cols)
+            {
+                if (col.Contains(type))
+                {
+                    //remove any of the filler characters
+                    newCol = col.Replace("_", "").Replace("-", "").Replace(type, "").Replace(" ", "");
 
-                //remove any whitespace after a "type"; e.g.: bg:  red needs to be bg:red
-                //otherwise the split won't work below
-                while (stillSpace) {
+                    finalName = finalName.Replace(col, "");
 
-                    // UnityEngine.Debug.Log($"type: {type} exists at: {cString[spaceLocation]}");
+                    // // if (newCol.Equals("rand", System.StringComparison.OrdinalIgnoreCase)) {
 
-                    if (Char.IsWhiteSpace(nameCheck, spaceLocation)) {
+                    // //     newCol = allColors[UnityEngine.Random.Range(0, allColors.Length)];
+                    // //     UnityEngine.Debug.Log($"randCol: {newCol}");
+                    // // }
 
-                        // UnityEngine.Debug.Log($"space: {typeExists + typeLength}");
-                        nameCheck = nameCheck.Remove(spaceLocation, 1);
-
-                        // UnityEngine.Debug.Log($"space: {cString}");
+                    // //convert string colour name to actual Unity Color...
+                    if (ColorUtility.TryParseHtmlString(newCol, out finalColor))
+                    {
+                        //  UnityEngine.Debug.Log($"type: {type} col: {newCol}");
+                        return (finalColor, finalName);
                     }
-                    else {
-                        // UnityEngine.Debug.Log($"cString[{checkForSpace}]: {cString[typeExists + typeLength]}");
-                        stillSpace = false;
+                    else
+                    {
+                        UnityEngine.Debug.LogError($"Color: {newCol} for Type: {type} could not be converted...");
+                        return (UnityEngine.Color.white, finalName);
                     }
                 }
             }
+
+            return (finalColor, null); //Color cannot be null => return null for the string so we can test if
+                                       //function was succesful or not
+        }
+
+        private static (float borderSize, string finalName) GetNumberFromString(string cString, string type, float def)
+        {
+            float offset = def;
+            string newCol = "";
+            string finalName = "";
+            string nameCheck = CheckForWhiteSpaceAfterType(cString, type);
 
             //remove the "//" since we done't want to see this on the GO in the hierarchy
             finalName = nameCheck.Replace("/", "");
@@ -200,20 +235,49 @@ namespace MR.CustomExtensions
                     //     UnityEngine.Debug.Log($"randCol: {newCol}");
                     // }
 
-                    //convert string colour name to actual Unity Color...
-                    if (ColorUtility.TryParseHtmlString(newCol, out finalColor))
+                    if (Single.TryParse(newCol, out offset))
                     {
-                        return (finalColor, finalName);
+                        return(offset, finalName);
+                    }
+
+                    return(def, finalName);
+                }
+            }
+            return (def, null);
+        }
+
+        private static string CheckForWhiteSpaceAfterType(string cString, string type)
+        {
+            var typeExists = cString.IndexOf(type, System.StringComparison.Ordinal);
+            var nameCheck = cString;
+
+            if (typeExists >= 0)
+            {
+                var typeLength = type.Length;
+                var spaceLocation = (typeExists + typeLength);
+                var stillSpace = true;
+
+                //remove any whitespace after a "type"; e.g.: bg:  red needs to be bg:red
+                //otherwise the split won't work below
+                while (stillSpace)
+                {
+                    // UnityEngine.Debug.Log($"type: {type} exists at: {cString[spaceLocation]}");
+
+                    if (Char.IsWhiteSpace(nameCheck, spaceLocation)) {
+
+                        // UnityEngine.Debug.Log($"space: {typeExists + typeLength}");
+                        nameCheck = nameCheck.Remove(spaceLocation, 1);
+
+                        // UnityEngine.Debug.Log($"space: {cString}");
                     }
                     else {
-
-                         return (UnityEngine.Color.white, finalName);
+                        // UnityEngine.Debug.Log($"cString[{checkForSpace}]: {cString[typeExists + typeLength]}");
+                        stillSpace = false;
                     }
                 }
             }
 
-            return (finalColor, null); //Color cannot be null => return null for the string so we can test if
-                                       //function was succesful or not
+            return nameCheck;
         }
     }
 }
