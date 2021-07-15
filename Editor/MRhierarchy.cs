@@ -168,11 +168,6 @@ namespace MR.CustomExtensions
                     //remove any of the filler characters
                     newCol = col.Replace("_", "").Replace("-", "").Replace(type, "").Replace(" ", "");
 
-                    // if (newCol.Equals("b:")) {
-
-                    //     UnityEngine.Debug.Log($"newCol: {newCol} for type: {type}");
-                    // }
-
                     finalName = finalName.Replace(col, "");
 
                     // // if (newCol.Equals("rand", System.StringComparison.OrdinalIgnoreCase)) {
@@ -239,33 +234,6 @@ namespace MR.CustomExtensions
                                        //function was succesful or not
         }
 
-/*
- if (typeExists >= 0) {
-
-                var typeLength = type.Length;
-                var spaceLocation = (typeExists + typeLength);
-                var stillSpace = true;
-
-                //remove any whitespace after a "type"; e.g.: bg:  red needs to be bg:red
-                //otherwise the split won't work below
-                while (stillSpace) {
-
-                    // UnityEngine.Debug.Log($"type: {type} exists at: {cString[spaceLocation]}");
-
-                    if (Char.IsWhiteSpace(nameCheck, spaceLocation)) {
-
-                        // UnityEngine.Debug.Log($"space: {typeExists + typeLength}");
-                        nameCheck = nameCheck.Remove(spaceLocation, 1);
-
-                        // UnityEngine.Debug.Log($"space: {cString}");
-                    }
-                    else {
-                        // UnityEngine.Debug.Log($"cString[{checkForSpace}]: {cString[typeExists + typeLength]}");
-                        stillSpace = false;
-                    }
-                }
-            }
-*/
         private static string CheckForWhiteSpaceAfterType(string cString, string type)
         {
             var typeExists = cString.IndexOf(type, System.StringComparison.Ordinal);
