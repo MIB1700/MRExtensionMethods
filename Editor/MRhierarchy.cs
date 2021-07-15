@@ -88,6 +88,7 @@ namespace MR.CustomExtensions
                 name = finalTextName ?? name;
                 (UnityEngine.Color borderColour, string finalBorderName) = GetColorFromString(name, "b:");
 
+
                 name = finalBorderName ?? name;
                 (float bOffset, string offsetName) = GetNumberFromString(name, "bs:", 2);
 
@@ -182,12 +183,6 @@ namespace MR.CustomExtensions
 
                     finalName = finalName.Replace(col, "");
 
-                    // // if (newCol.Equals("rand", System.StringComparison.OrdinalIgnoreCase)) {
-
-                    // //     newCol = allColors[UnityEngine.Random.Range(0, allColors.Length)];
-                    // //     UnityEngine.Debug.Log($"randCol: {newCol}");
-                    // // }
-
                     // //convert string colour name to actual Unity Color...
                     if (ColorUtility.TryParseHtmlString(newCol, out finalColor))
                     {
@@ -228,12 +223,6 @@ namespace MR.CustomExtensions
                     newCol = col.Replace("_", "").Replace("-", "").Replace(type, "");
 
                     finalName = finalName.Replace(newCol, "").Replace(type, "");
-
-                    // if (newCol.Equals("rand", System.StringComparison.OrdinalIgnoreCase)) {
-
-                    //     newCol = allColors[UnityEngine.Random.Range(0, allColors.Length)];
-                    //     UnityEngine.Debug.Log($"randCol: {newCol}");
-                    // }
 
                     if (Single.TryParse(newCol, out offset))
                     {
