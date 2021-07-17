@@ -162,5 +162,26 @@ namespace MR.CustomExtensions
         {
             return integer % 2 != 0;
         }
+/*******************************************************************/
+        /// <summary>
+        /// equally shrink rect by given amount
+        /// </summary>
+        /// <returns>new, scaled rect.</returns>
+        /// <param name="self">Starting Rect.</param>
+        /// <param name="offset">amount to reduce the size of the Rect by.</param>
+        public static Rect AddOffset(this Rect self, float offset) {
+
+            self.xMin     += offset;
+            self.yMin     += offset;
+            self.width    -= offset;
+            self.height   -= offset;
+
+            return self;
+        }
+
+         public static Rect Shrink(this Rect self, float offset) {
+
+            return self.AddOffset(offset);
+        }
     }
 }

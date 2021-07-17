@@ -186,7 +186,7 @@ namespace MR.CustomExtensions
         /// <param name="y">The value to divide Vector3.y by.</param>
         public static Vector3 DivY(this Vector3 v, float y)
         {
-             try {
+            try {
 
                 return new Vector3(v.x, v.y / y, v.z);
             }
@@ -236,6 +236,35 @@ namespace MR.CustomExtensions
 		return Vector3.Distance(origin.Flattened(), destination.Flattened());
 	}
 /*******************************************************************/
+        /// <summary>
+        /// Component-wise absolute value
+        /// </summary>
+        /// <param name="vec"></param>
+        /// <returns>absolute values for each vec component</returns>
+        public static Vector3 Abs(this Vector3 vec)
+        {
+            return new Vector3(Mathf.Abs(vec.x), Mathf.Abs(vec.y), Mathf.Abs(vec.z));
+        }
+/*******************************************************************/
+        /// <summary>
+        /// Component-wise absolute value
+        /// </summary>
+        /// <param name="vec"></param>
+        /// <returns>absolute values for each vec component</returns>
+        public static Vector2 Abs(this Vector2 vec)
+        {
+            return new Vector2(Mathf.Abs(vec.x), Mathf.Abs(vec.y));
+        }
+/*******************************************************************/
+        /// <summary>
+        /// Component-wise absolute value
+        /// </summary>
+        /// <param name="vec"></param>
+        /// <returns>absolute values for each vec component</returns>
+        public static Vector4 Abs(this Vector4 vec)
+        {
+            return new Vector4(Mathf.Abs(vec.x), Mathf.Abs(vec.y), Mathf.Abs(vec.z), Mathf.Abs(vec.w));
+        }
 #endregion
     }
 }

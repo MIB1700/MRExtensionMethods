@@ -98,11 +98,7 @@ namespace MR.CustomExtensions
                 name = textSizeName ?? name;
                 name = name.Replace("/", "");
 
-                offset.xMin     += bOffset;
-                offset.yMin     += bOffset;
-                offset.width    -= bOffset;
-                offset.height   -= bOffset;
-
+                offset = BackgroundRect.Shrink(bOffset);
 
                 if (finalBorderName != null)
                 {
