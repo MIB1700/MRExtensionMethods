@@ -13,7 +13,6 @@ namespace MR.CustomExtensions
         static bool isInited = false;
 
         //types we want to be able to use
-        //TODO: would be nice if we could say here what types they are or if they are switches
         static private string[] types= {"bg:", "b:", "t:", "bs:", "ts:"};
 
         static MRhierarchy()
@@ -54,24 +53,27 @@ namespace MR.CustomExtensions
                 return;
             }
 
+            //* This needs to be here (and not inside the if "//" statement) because the
+            //* icon drawer needs the BackgroundRect info...
             Rect BackgroundRect = new Rect();
+            float xPos  = selectionRect.position.x + 60f - 28f - selectionRect.xMin;
+            float yPos  = selectionRect.position.y;
+            float xSize = selectionRect.size.x + selectionRect.xMin + 28f - 60 + 16f;
+            float ySize = selectionRect.size.y;
+
+            BackgroundRect = new Rect(xPos, yPos, xSize, ySize);
 
             //if the name of the GO starts with a double "//" i.e. like a comment...
             if (gameObject.name.StartsWith("//", System.StringComparison.Ordinal))
             {
+                //*default colours!!
                 Color backGroundColour  = UnityEngine.Color.black;
                 Color borderColour      = UnityEngine.Color.white;
                 Color textColour        = UnityEngine.Color.red;
 
                 float textSize = 12f;
                 float borderSize = 2f;
-
-                float xPos  = selectionRect.position.x + 60f - 28f - selectionRect.xMin;
-                float yPos  = selectionRect.position.y;
-                float xSize = selectionRect.size.x + selectionRect.xMin + 28f - 60 + 16f;
-                float ySize = selectionRect.size.y;
-
-                BackgroundRect = new Rect(xPos, yPos, xSize, ySize);
+                bool borderOn = true;
 
                 var offset = BackgroundRect.Shrink(borderSize);
                 gameObject.SetActive(false);
@@ -90,6 +92,8 @@ namespace MR.CustomExtensions
                     }
 
                     //only use the "finalName" if it isn't null
+                    //this means we are incrementally removing the type and formatting info
+                    //from our name string => only the final string for the LabelField should be left when done
                     name = finalName ?? name;
 
                     //deal with the types
@@ -99,7 +103,17 @@ namespace MR.CustomExtensions
                             backGroundColour = ConvertStringToColor(after, Color.white);
                             break;
                         case "b:":
-                            borderColour = ConvertStringToColor(after, Color.white);
+                        //* "b:" is always checked  AFTER the "bg:"; that's why we can do this now
+                            if (after.Equals("=")) {
+                                //when border "=" (i.e. equals) the background color, simple don't draw border at all
+                                borderOn = false;
+                                //make sure the backgroundColour Rect is resized properly
+                                offset = BackgroundRect;
+                            }
+                            else {
+                                borderOn = true;
+                                borderColour = ConvertStringToColor(after, Color.white);
+                            }
                             break;
                         case "t:":
                             textColour = ConvertStringToColor(after, Color.white);
@@ -114,23 +128,27 @@ namespace MR.CustomExtensions
                 }
 
                 //all variables are set, now draw and put the text
-                EditorGUI.DrawRect(BackgroundRect, borderColour);
+                if (borderOn)
+                    EditorGUI.DrawRect(BackgroundRect, borderColour);
                 EditorGUI.DrawRect(offset, backGroundColour);
 
-                EditorGUI.LabelField(BackgroundRect, name, new GUIStyle()
-                {
-                        normal = new GUIStyleState() { textColor = textColour },
-                        fontStyle = FontStyle.BoldAndItalic,
-                        fontSize = (int)textSize,
-                        wordWrap = true,
-                        alignment = TextAnchor.MiddleCenter
-                    }
-                );
+                //only draw the text if there is text to draw
+                if (!String.IsNullOrEmpty(name)){
+                    EditorGUI.LabelField(BackgroundRect, name, new GUIStyle()
+                    {
+                            normal = new GUIStyleState() { textColor = textColour },
+                            fontStyle = FontStyle.BoldAndItalic,
+                            fontSize = (int)textSize,
+                            wordWrap = true,
+                            alignment = TextAnchor.MiddleCenter
+                        }
+                    );
+                }
             }
 
-            //TODO: figure out why this does not draw the image... check proper rect location!
             if (gameObject.GetComponent(typeof(IMR))){
 
+                //  Debug.Log($"ICON BackgroundRect: {BackgroundRect}");
                 DrawIcon(BackgroundRect, texturedMR);
             }
         }
@@ -161,9 +179,6 @@ namespace MR.CustomExtensions
             }
             return (null, null);
         }
-
-        //provide the name of the gameobject and the type (e.g. bg, t, b) to look for colour name, also return the
-        //name of the gameobject without the colour name in it
 
         //try to convert the string to a Unity Color...
         private static Color ConvertStringToColor(string noType, Color defCol)
@@ -203,21 +218,15 @@ namespace MR.CustomExtensions
                 var spaceLocation = (typeExists + typeLength);
                 var stillSpace = true;
 
-                //remove any whitespace after a "type"; e.g.: bg:  red needs to be bg:red
-                //otherwise the split won't work below
+                //remove any whitespace after a "type"; e.g.: "bg:  red" needs to be "bg:red"
                 while (stillSpace)
                 {
-                    // UnityEngine.Debug.Log($"type: {type} exists at: {cString[spaceLocation]}");
-
                     if (Char.IsWhiteSpace(nameCheck, spaceLocation)) {
 
-                        // UnityEngine.Debug.Log($"space: {typeExists + typeLength}");
                         nameCheck = nameCheck.Remove(spaceLocation, 1);
-
-                        // UnityEngine.Debug.Log($"space: {cString}");
                     }
                     else {
-                        // UnityEngine.Debug.Log($"cString[{checkForSpace}]: {cString[typeExists + typeLength]}");
+
                         stillSpace = false;
                     }
                 }
@@ -227,14 +236,15 @@ namespace MR.CustomExtensions
 
 
         //this is for drawing the image... not useful yet...
-        private static void DrawIcon(Rect selectionRect, Texture2D icon) {
+        private static void DrawIcon(Rect rect, Texture2D icon) {
 
             //look for assets only if we are actually trying to use them...
             Initialize();
-            selectionRect.x = selectionRect.x + selectionRect.width - 15f;
+            // Debug.Log($"ICON ORIGrect: {selectionRect}");
+            rect.x = rect.x + rect.width - 15 - 2f;
+            // Debug.Log($"ICONrect: {selectionRect}");
 
-                // Debug.Log($"rect: {rect}");
-            GUI.Label(selectionRect, icon);
+            GUI.Label(rect, icon);
         }
     }
 }

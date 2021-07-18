@@ -32,3 +32,5 @@ and example use could be:
 ```
 // EnemyTypes bg:red b:green bs:4 t:black ts: 16
 ```
+
+using **b:=** results in the border being the same colour as the background (i.e. no border)
