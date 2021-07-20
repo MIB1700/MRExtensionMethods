@@ -1,7 +1,8 @@
+using System.Drawing;
 using UnityEngine;
 using UnityEditor;
 using System;
-
+using System.Collections.Generic;
 
 namespace MR.CustomExtensions
 {
@@ -11,9 +12,10 @@ namespace MR.CustomExtensions
         static Texture2D texturedMR;
 
         static bool isInited = false;
+        static UnityEngine.Color[] defaultGradient = {UnityEngine.Color.red, UnityEngine.Color.blue};
 
         //types we want to be able to use
-        static private string[] types= {"bg:", "b:", "t:", "bs:", "ts:"};
+        static private string[] types = { "gr:", "bg:", "b:", "t:", "bs:", "ts:", "icon:", "icn:", "ic:"};
 
         static MRhierarchy()
         {
@@ -56,6 +58,7 @@ namespace MR.CustomExtensions
             //* This needs to be here (and not inside the if "//" statement) because the
             //* icon drawer needs the BackgroundRect info...
             Rect BackgroundRect = new Rect();
+
             float xPos  = selectionRect.position.x + 60f - 28f - selectionRect.xMin;
             float yPos  = selectionRect.position.y;
             float xSize = selectionRect.size.x + selectionRect.xMin + 28f - 60 + 16f;
@@ -67,13 +70,18 @@ namespace MR.CustomExtensions
             if (gameObject.name.StartsWith("//", System.StringComparison.Ordinal))
             {
                 //*default colours!!
-                Color backGroundColour  = UnityEngine.Color.black;
-                Color borderColour      = UnityEngine.Color.white;
-                Color textColour        = UnityEngine.Color.red;
+                UnityEngine.Color backGroundColour = UnityEngine.Color.black;
+                UnityEngine.Color borderColour     = UnityEngine.Color.white;
+                UnityEngine.Color textColour       = UnityEngine.Color.red;
+                UnityEngine.Color[] gradientCols   = {UnityEngine.Color.red, UnityEngine.Color.blue};
 
-                float textSize = 12f;
-                float borderSize = 2f;
-                bool borderOn = true;
+                float textSize      = 12f;
+                float borderSize    = 2f;
+                bool borderOn       = true; //draw the border
+                bool gradientOn     = false; //draw the gradient
+                bool colourOn       = true; //draw the single colour
+                bool textOn         = true; //draw the text
+                bool iconOn         = false;
 
                 var offset = BackgroundRect.Shrink(borderSize);
                 gameObject.SetActive(false);
@@ -86,7 +94,8 @@ namespace MR.CustomExtensions
                 {
                     (string after, string finalName) = GetStringAfterType(name, type);
 
-                    if (after == null) {
+                    if (after == null)
+                    {
                         //if that type wasn't found in string => bail
                         continue;
                     }
@@ -99,64 +108,118 @@ namespace MR.CustomExtensions
                     //deal with the types
                     switch (type)
                     {
+                        case "gr:":
+                            gradientOn = true;
+                            borderOn = false;
+
+                            gradientCols = ConvertStringToColors(after, defaultGradient);
+                            offset = BackgroundRect;
+                            break;
                         case "bg:":
-                            backGroundColour = ConvertStringToColor(after, Color.white);
+                            colourOn = true;
+                            backGroundColour = ConvertStringToColor(after, UnityEngine.Color.white);
                             break;
                         case "b:":
-                        //* "b:" is always checked  AFTER the "bg:"; that's why we can do this now
-                            if (after.Equals("=")) {
+                            //* "b:" is always checked  AFTER the "bg:"; that's why we can do this now
+                            if (after.Equals("="))
+                            {
                                 //when border "=" (i.e. equals) the background color, simple don't draw border at all
                                 borderOn = false;
                                 //make sure the backgroundColour Rect is resized properly
                                 offset = BackgroundRect;
                             }
-                            else {
+                            else
+                            {
                                 borderOn = true;
-                                borderColour = ConvertStringToColor(after, Color.white);
+                                offset = BackgroundRect.Shrink(borderSize);
+                                borderColour = ConvertStringToColor(after, UnityEngine.Color.white);
                             }
                             break;
                         case "t:":
-                            textColour = ConvertStringToColor(after, Color.white);
+                            textOn = true;
+                            textColour = ConvertStringToColor(after, UnityEngine.Color.white);
                             break;
                         case "bs:":
+                            borderOn = true;
                             offset = BackgroundRect.Shrink(ConvertStringToFloat(after, 2));
                             break;
                         case "ts:":
                             textSize = ConvertStringToFloat(after, 12);
                             break;
+                        case "icon:":
+                            iconOn = true;
+                            break;
+                        case "icn:":
+                            iconOn = true;
+                            break;
+                        case "ic:":
+                            iconOn = true;
+                            break;
                     }
                 }
-
+                //----------------------------------
+                if (name == null)
+                {
+                    textOn = false;
+                }
+                else
+                {
+                    textOn = true;
+                }
+                //----------------------------------
                 //all variables are set, now draw and put the text
                 if (borderOn)
                     EditorGUI.DrawRect(BackgroundRect, borderColour);
-                EditorGUI.DrawRect(offset, backGroundColour);
+
+                if (colourOn)
+                    EditorGUI.DrawRect(offset, backGroundColour);
+
+                if (gradientOn)
+                {
+                    Texture2D gradient = CreateGradientTexture(4, 4, gradientCols[0], gradientCols[1]);
+                    GUI.DrawTexture(offset, gradient, ScaleMode.StretchToFill);
+                }
 
                 //only draw the text if there is text to draw
-                if (!String.IsNullOrEmpty(name)){
+                if (textOn)
+                {
                     EditorGUI.LabelField(BackgroundRect, name, new GUIStyle()
                     {
-                            normal = new GUIStyleState() { textColor = textColour },
-                            fontStyle = FontStyle.BoldAndItalic,
-                            fontSize = (int)textSize,
-                            wordWrap = true,
-                            alignment = TextAnchor.MiddleCenter
-                        }
+                        normal = new GUIStyleState() { textColor = textColour },
+                        fontStyle = FontStyle.BoldAndItalic,
+                        fontSize = (int)textSize,
+                        wordWrap = true,
+                        alignment = TextAnchor.MiddleCenter
+                    }
                     );
+                }
+
+                if (iconOn) {
+                    DrawIcon(BackgroundRect, texturedMR);
                 }
             }
 
-            if (gameObject.GetComponent(typeof(IMR))){
+            if (gameObject.GetComponent(typeof(IMR)))
+            {
 
                 //  Debug.Log($"ICON BackgroundRect: {BackgroundRect}");
                 DrawIcon(BackgroundRect, texturedMR);
             }
         }
 
-        private static (string withoutType, string final) GetStringAfterType(string cString, string type) {
+        private static (string withoutType, string final) GetStringAfterType(string cString, string type)
+        {
 
             string newStr = "";
-            string finalName = CheckForWhiteSpaceAfterType(cString, type);
+            string finalName = "";
+
+            if (!type.Equals("icon:")) {
+
+                finalName = CheckForWhiteSpaceAfterType(cString, type);
+            }
+            else {
+                finalName = cString;
+            }
 
             //remove the "//" since we done't want to see this on the GO in the hierarchy
             finalName = finalName.Replace("/", "");
@@ -171,7 +234,7 @@ namespace MR.CustomExtensions
                 if (str.Contains(type))
                 {
                     //remove any of the filler characters
-                    newStr = str.Replace("_", "").Replace("-", "").Replace(type, "").Replace(" ", "");
+                    newStr = str.Replace("_", "").Replace(type, "").Replace(" ", "");
                     finalName = finalName.Replace(str, "");
 
                     return (newStr, finalName);
@@ -181,13 +244,14 @@ namespace MR.CustomExtensions
         }
 
         //try to convert the string to a Unity Color...
-        private static Color ConvertStringToColor(string noType, Color defCol)
+        private static UnityEngine.Color ConvertStringToColor(string noType, UnityEngine.Color defCol)
         {
-            if (noType == null) {
+            if (noType == null)
+            {
 
                 return defCol;
             }
-            if (ColorUtility.TryParseHtmlString(noType, out Color finalColor))
+            if (ColorUtility.TryParseHtmlString(noType, out UnityEngine.Color finalColor))
             {
                 return finalColor;
             }
@@ -198,7 +262,41 @@ namespace MR.CustomExtensions
             }
         }
 
-        private static float ConvertStringToFloat(string noType, float def) {
+        //split the string of gradient colours appart and return Unity Colors
+        private static UnityEngine.Color[] ConvertStringToColors(string noType, UnityEngine.Color[] defCol)
+        {
+            if (noType == null)
+            {
+                return defCol;
+            }
+
+            List<UnityEngine.Color> colours = new List<UnityEngine.Color>();
+
+            var cols = noType.Split('-');
+
+            foreach (var col in cols)
+            {
+                if (ColorUtility.TryParseHtmlString(col, out UnityEngine.Color finalColor))
+                {
+                    colours.Add(finalColor);
+                }
+                else
+                {
+                    UnityEngine.Debug.LogError($"Color: {noType} could not be converted...");
+                    return defCol;
+                }
+            }
+
+            if (colours.Count == 2)    {
+
+                return colours.ToArray();
+            }
+
+            return defCol;
+        }
+
+        private static float ConvertStringToFloat(string noType, float def)
+        {
 
             if (Single.TryParse(noType, out float offset))
             {
@@ -221,11 +319,13 @@ namespace MR.CustomExtensions
                 //remove any whitespace after a "type"; e.g.: "bg:  red" needs to be "bg:red"
                 while (stillSpace)
                 {
-                    if (Char.IsWhiteSpace(nameCheck, spaceLocation)) {
+                    if (Char.IsWhiteSpace(nameCheck, spaceLocation))
+                    {
 
                         nameCheck = nameCheck.Remove(spaceLocation, 1);
                     }
-                    else {
+                    else
+                    {
 
                         stillSpace = false;
                     }
@@ -236,7 +336,8 @@ namespace MR.CustomExtensions
 
 
         //this is for drawing the image... not useful yet...
-        private static void DrawIcon(Rect rect, Texture2D icon) {
+        private static void DrawIcon(Rect rect, Texture2D icon)
+        {
 
             //look for assets only if we are actually trying to use them...
             Initialize();
@@ -245,6 +346,42 @@ namespace MR.CustomExtensions
             // Debug.Log($"ICONrect: {selectionRect}");
 
             GUI.Label(rect, icon);
+        }
+
+        private static Texture2D CreateGradientTexture(int width, int height, UnityEngine.Color colorOne, UnityEngine.Color colorTwo)
+        {
+
+            Texture2D tex = new Texture2D(width, height, TextureFormat.ARGB32, false);
+            tex.hideFlags = HideFlags.HideAndDontSave;
+
+            UnityEngine.Color[] color = new UnityEngine.Color[width * height];
+
+            for (int i = 0; i < width; i++)
+            {
+                UnityEngine.Color col = UnityEngine.Color.Lerp(colorOne, colorTwo, (float)i / (float)(width - 1)); //(float)(Mathf.Sin(width - 1)));
+                for (int j = 0; j < height; j++)
+                {
+                    color[j * width + i] = col;
+                }
+            }
+            tex.SetPixels(color);
+            tex.wrapMode = TextureWrapMode.Clamp;
+            tex.Apply();
+
+            return tex;
+        }
+
+        private static Texture2D CreateTextureWithColor(UnityEngine.Color color)
+        {
+
+            Texture2D tex = new Texture2D(1, 1, TextureFormat.ARGB32, false);
+            tex.hideFlags = HideFlags.HideAndDontSave;
+
+            tex.SetPixel(0, 0, color);
+            tex.wrapMode = TextureWrapMode.Clamp;
+            tex.Apply();
+
+            return tex;
         }
     }
 }

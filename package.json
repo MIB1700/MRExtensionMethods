@@ -1,6 +1,6 @@
 {
   "name": "com.mr.extensionmethods",
-  "version": "1.0.7",
+  "version": "1.0.9",
   "displayName": "MR Extensions",
   "unity": "2019.4",
   "keywords": [
@@ -17,22 +17,14 @@
   "hideInEditor": false,
   "samples": [
     {
-
       "displayName": "Sample Scene",
-
       "description": "Description for sample 1",
-
       "path": "Samples~/Scenes"
-
     },
     {
-
       "displayName": "Sample Script",
-
       "description": "Description for sample 1",
-
       "path": "Samples~/Scripts"
-
     }
   ]
 }
