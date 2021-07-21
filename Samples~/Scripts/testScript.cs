@@ -9,7 +9,7 @@ using MR.CustomExtensions;
   */
 
 
-public class testScript : MonoBehaviour, IMR
+public class testScript : MonoBehaviour
 {
     private Material material;
     // Start is called before the first frame update
